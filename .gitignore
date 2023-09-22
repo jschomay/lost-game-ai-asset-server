@@ -6,6 +6,5 @@ __pycache__
 
 .venv/
 .envrc
-*.db
 output.jsonl
 
