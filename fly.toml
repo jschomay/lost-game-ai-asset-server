@@ -11,6 +11,7 @@ primary_region = "atl"
 
 [env]
   PORT = "8080"
+  DB_PATH = "/data/lost.db"
 
 [http_service]
   internal_port = 8080
@@ -22,6 +23,6 @@ primary_region = "atl"
 
 [mounts]
   source="lost_assets_data"
-  destination="/"
+  destination="/data"
 
 

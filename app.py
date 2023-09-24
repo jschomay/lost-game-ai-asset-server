@@ -15,6 +15,33 @@ scene_lock = threading.Lock()
 
 
 API_KEY = os.environ["API_KEY"]
+TRAINING_DATABASE = "lost_training.db"
+DATABASE = os.environ["DB_PATH"]
+
+
+def init_db():
+    logging.warning("Creating database")
+    fp = open(DATABASE, "x")
+    fp.close()
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS scenes (
+            id INTEGER PRIMARY KEY,
+            info TEXT
+        )
+    """
+    )
+    conn.commit()
+    conn.close()
+
+
+try:
+    logging.info(f"database file size {os.path.getsize(DATABASE)}")
+except FileNotFoundError:
+    logging.warning("Database not found, creating empty database")
+    init_db()
 
 
 def ensure_enough_scenes():
@@ -54,24 +81,6 @@ SAMPLE_SCENE = {
     },
 }
 
-TRAINING_DATABASE = "lost_training.db"
-DATABASE = "lost.db"
-
-
-def init_db():
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    c.execute(
-        """
-        CREATE TABLE IF NOT EXISTS scenes (
-            id INTEGER PRIMARY KEY,
-            info TEXT
-        )
-    """
-    )
-    conn.commit()
-    conn.close()
-
 
 def save_scene(scene):
     conn = sqlite3.connect(DATABASE)
@@ -79,9 +88,6 @@ def save_scene(scene):
     c.execute("INSERT INTO scenes (info) VALUES (?)", (json.dumps(scene),))
     conn.commit()
     conn.close()
-
-
-init_db()
 
 
 # @app.route("/seed", methods=["GET"])
