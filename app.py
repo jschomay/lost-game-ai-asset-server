@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sqlite3
 import threading
@@ -6,6 +7,8 @@ import threading
 from flask import Flask, jsonify, redirect, render_template, request
 
 from gen_openai import gen_scene, gen_scenes
+
+logging.getLogger().setLevel(logging.INFO)
 
 app = Flask(__name__)
 scene_lock = threading.Lock()
@@ -32,7 +35,7 @@ def ensure_enough_scenes():
         to_add = 10
 
         if count < minimum:
-            print(
+            logging.info(
                 f"{count} scenes found.  Minimum is {minimum}.  Generating {to_add} more scenes"
             )
             gen_scenes(to_add, save_scene)
@@ -91,7 +94,7 @@ init_db()
 def gen_n(n):
     token = request.headers.get("Authorization", "<no auth provided>")
     if token != "Bearer " + API_KEY:
-        print(f"WARNING: invalid request made with token: {token}")
+        logging.warning(f"invalid request made with token: {token}")
         return jsonify({"message": "Invalid API key"}), 401
     gen_scenes(int(n), save_scene)
     return jsonify({"message": f"{n} scenes generated"}), 200
@@ -101,7 +104,7 @@ def gen_n(n):
 def pop_scene():
     token = request.headers.get("Authorization", "<no auth provided>")
     if token != "Bearer " + API_KEY:
-        print(f"WARNING: invalid request made with token: {token}")
+        logging.warning(f"invalid request made with token: {token}")
         return jsonify({"message": "Invalid API key"}), 401
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()

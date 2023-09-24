@@ -1,5 +1,6 @@
 import concurrent.futures
 import json
+import logging
 import os
 import sqlite3
 import time
@@ -23,11 +24,11 @@ def gen_scenes(n, cb):
     The supplied callback is called with the final scene json as soon as it is
     ready for each generated scene.
     """
-    print(f"Generating {n} scenes...")
+    logging.debug(f"Generating {n} scenes...")
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_result = {executor.submit(gen_scene): i for i in range(n)}
         for i, future in enumerate(concurrent.futures.as_completed(future_to_result)):
-            print(f"Scene {i} done")
+            logging.debug(f"Scene {i} done")
             scene = future.result()
 
             try:
@@ -37,7 +38,7 @@ def gen_scenes(n, cb):
                 scene = json.loads(scene_json)
                 # TODO validate scene
             except Exception as e:
-                print("Error getting scene info", e, scene)
+                logging.error("Error getting scene info", e, scene)
                 return
 
             try:
@@ -46,7 +47,7 @@ def gen_scenes(n, cb):
                 )
                 scene["image"] = image_url
             except Exception as e:
-                print("Error generating scene image", e)
+                logging.error("Error generating scene image", e)
 
             if scene is not None:
                 cb(scene)

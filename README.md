@@ -42,13 +42,14 @@ Where I'm at:
 - I'm using legacy completion endpoint for training because it is more reliable I have found
 - validate scenes when they come back before generating image
 - save scene as a callback after each scene gen
-
-What I need next:
 - add api key for gen endpoints
 - Disable extra unused routes
 - upload to fly.io
+
+What I need next:
 - make change to game
-- Check Leonardo CDN retention policy
+- test!
+- update readme
 
 
 
@@ -102,6 +103,7 @@ Questions:
 Example outputs:
 
 
+See generated training data at https://lost-game-ai-assets-server.fly.dev/training
 
 Title: Fluttering in the Breeze
 Initial description: You look up and see colorful butterflies in the clearing. The sun gives them a celestial glow and brings you a sense of hope and peace.
