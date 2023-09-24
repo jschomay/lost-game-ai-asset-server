@@ -1,13 +1,17 @@
 import json
+import os
 import sqlite3
 import threading
 
-from flask import Flask, jsonify, redirect, render_template
+from flask import Flask, jsonify, redirect, render_template, request
 
 from gen_openai import gen_scene, gen_scenes
 
 app = Flask(__name__)
 scene_lock = threading.Lock()
+
+
+API_KEY = os.environ["API_KEY"]
 
 
 def ensure_enough_scenes():
@@ -77,26 +81,28 @@ def save_scene(scene):
 init_db()
 
 
-@app.route("/seed", methods=["GET"])
-def seed():
-    save_scene(SAMPLE_SCENE)
-    return redirect("/scenes")
-
-
-@app.route("/gen", methods=["GET"])
-def gen():
-    gen_scenes(1, save_scene)
-    return redirect("/scenes")
+# @app.route("/seed", methods=["GET"])
+# def seed():
+#     save_scene(SAMPLE_SCENE)
+#     return redirect("/scenes")
 
 
 @app.route("/gen/<n>", methods=["GET"])
 def gen_n(n):
+    token = request.headers.get("Authorization", "<no auth provided>")
+    if token != "Bearer " + API_KEY:
+        print(f"WARNING: invalid request made with token: {token}")
+        return jsonify({"message": "Invalid API key"}), 401
     gen_scenes(int(n), save_scene)
-    return redirect("/scenes")
+    return jsonify({"message": f"{n} scenes generated"}), 200
 
 
 @app.route("/scene", methods=["GET"])
 def pop_scene():
+    token = request.headers.get("Authorization", "<no auth provided>")
+    if token != "Bearer " + API_KEY:
+        print(f"WARNING: invalid request made with token: {token}")
+        return jsonify({"message": "Invalid API key"}), 401
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
 
