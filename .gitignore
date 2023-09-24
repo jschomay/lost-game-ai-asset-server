@@ -8,3 +8,4 @@ __pycache__
 .envrc
 output.jsonl
 
+lost.db

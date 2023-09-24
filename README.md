@@ -39,27 +39,17 @@ Where I'm at:
 - I decided to use sqlite as a simple embedded file system db and it is working fine
 - I am triggering sample gen scenes by api and saving them
 - I have a simple gallery of scenes in the db
-- I'm using legacy completion endpoint because it is more reliable I have found
+- I'm using legacy completion endpoint for training because it is more reliable I have found
+- validate scenes when they come back before generating image
+- save scene as a callback after each scene gen
 
 What I need next:
-- Validate the data
-- Figure out how to format the json into the prompt template
-- I need to train the LLM
-- For that I need to generate 50ish scenes
-- Save a copy of the training db for posterity
-- I should get parallel calls working to speed that up
-- Then I need to strip out the image key, then run the training code
-- Should use new chat since completion will be discontinued
-- Make sure I'm using my personal org!
-
-After that:
-- Test out trained model with chat completions
+- add api key for gen endpoints
 - Disable extra unused routes
-- Add API key for any routes that can cause gen spend
-- Add fly.io and deploy (with working db)
-- Determine refill strategy
-- Change game to get scenes from scene server (figure out workflow)
+- upload to fly.io
+- make change to game
 - Check Leonardo CDN retention policy
+
 
 
 ## Planning approach

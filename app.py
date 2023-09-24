@@ -1,11 +1,37 @@
 import json
 import sqlite3
+import threading
 
 from flask import Flask, jsonify, redirect, render_template
 
 from gen_openai import gen_scene, gen_scenes
 
 app = Flask(__name__)
+scene_lock = threading.Lock()
+
+
+def ensure_enough_scenes():
+    """
+    This makes sure there are at least a minimum number of scenes in the database.
+
+    It is intended to be called each time a scene is requested, and it runs in the background.
+    It handles concurrency but can run dry if concurrency is greater than the minimum threshold.
+    """
+    with scene_lock:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+
+        c.execute("SELECT COUNT(*) FROM scenes")
+        count = c.fetchone()[0]
+
+        minimum = 20
+        to_add = 10
+
+        if count < minimum:
+            print(
+                f"{count} scenes found.  Minimum is {minimum}.  Generating {to_add} more scenes"
+            )
+            gen_scenes(to_add, save_scene)
 
 
 SAMPLE_SCENE = {
@@ -21,6 +47,7 @@ SAMPLE_SCENE = {
     },
 }
 
+TRAINING_DATABASE = "lost_training.db"
 DATABASE = "lost.db"
 
 
@@ -58,15 +85,13 @@ def seed():
 
 @app.route("/gen", methods=["GET"])
 def gen():
-    scene = gen_scene()
-    save_scene(scene)
+    gen_scenes(1, save_scene)
     return redirect("/scenes")
 
 
 @app.route("/gen/<n>", methods=["GET"])
 def gen_n(n):
-    for scene in gen_scenes(int(n)):
-        save_scene(scene)
+    gen_scenes(int(n), save_scene)
     return redirect("/scenes")
 
 
@@ -74,6 +99,10 @@ def gen_n(n):
 def pop_scene():
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
+
+    background_thread = threading.Thread(target=ensure_enough_scenes)
+    background_thread.start()
+
     c.execute("SELECT * FROM scenes ORDER BY id DESC LIMIT 1")
     scene = c.fetchone()
     if scene:
@@ -85,6 +114,16 @@ def pop_scene():
     else:
         conn.close()
         return jsonify({"message": "No scenes available"})
+
+
+@app.route("/training", methods=["GET"])
+def list_training_scenes():
+    conn = sqlite3.connect(TRAINING_DATABASE)
+    c = conn.cursor()
+    c.execute("SELECT info FROM scenes ORDER BY id DESC")
+    scenes = [json.loads(row[0]) for row in c.fetchall()]
+    conn.close()
+    return render_template("scenes.html", scenes=scenes)
 
 
 @app.route("/scenes", methods=["GET"])
