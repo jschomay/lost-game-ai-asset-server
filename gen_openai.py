@@ -14,6 +14,51 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.organization = os.getenv("OPENAI_ORG")
 
 
+def validate_scene(scene):
+    required_keys = ["title", "image", "on_discover", "on_return"]
+    for key in required_keys:
+        if key not in scene:
+            return False
+
+    if not isinstance(scene["title"], str):
+        return False
+
+    if not isinstance(scene["image"], str):
+        return False
+
+    if not isinstance(scene["on_discover"], dict):
+        return False
+
+    if not isinstance(scene["on_return"], dict):
+        return False
+
+    valid_stats = ["vigor", "courage"]
+
+    for phase in ["on_discover", "on_return"]:
+        if "description" not in scene[phase] or not isinstance(
+            scene[phase]["description"], str
+        ):
+            return False
+
+        if "stats" not in scene[phase] or not isinstance(scene[phase]["stats"], list):
+            return False
+
+        for stat_entry in scene[phase]["stats"]:
+            if not isinstance(stat_entry, dict):
+                return False
+
+            if "stat" not in stat_entry or "diff" not in stat_entry:
+                return False
+
+            if stat_entry["stat"] not in valid_stats:
+                return False
+
+            if not isinstance(stat_entry["diff"], int):
+                return False
+
+    return True
+
+
 def gen_scenes(n, cb):
     """
     Concurrently generate scenes
@@ -36,7 +81,9 @@ def gen_scenes(n, cb):
                 # sometimes the LLM generated json escaping doesn't work
                 scene_json = scene_json.replace("\\'", "'")
                 scene = json.loads(scene_json)
-                # TODO validate scene
+                if not validate_scene(scene):
+                    logging.error("Invalid scene generated", scene)
+                    return
             except Exception as e:
                 logging.error("Error getting scene info", e, scene)
                 return

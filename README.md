@@ -45,10 +45,11 @@ Where I'm at:
 - add api key for gen endpoints
 - Disable extra unused routes
 - upload to fly.io
-
-What I need next:
+- validate scenes before save
 - make change to game
 - test!
+
+What I need next:
 - update readme
 
 
