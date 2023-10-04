@@ -98,20 +98,21 @@ def save_scene(scene):
 
 @app.route("/gen/<n>", methods=["GET"])
 def gen_n(n):
+    """
+    This route requires an api key to avoid costly abuse
+    """
     token = request.headers.get("Authorization", "<no auth provided>")
     if token != "Bearer " + API_KEY:
         logging.warning(f"invalid request made with token: {token}")
-        return jsonify({"message": "Invalid API key"}), 401
+        return jsonify({"error": "Invalid API key"}), 401
+    if int(n) > 30:
+        return jsonify({"error": "Maximum number of gen requests is 30"}), 400
     gen_scenes(int(n), save_scene)
     return jsonify({"message": f"{n} scenes generated"}), 200
 
 
 @app.route("/scene", methods=["GET"])
 def pop_scene():
-    token = request.headers.get("Authorization", "<no auth provided>")
-    if token != "Bearer " + API_KEY:
-        logging.warning(f"invalid request made with token: {token}")
-        return jsonify({"message": "Invalid API key"}), 401
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
 
