@@ -15,15 +15,12 @@ openai.organization = os.getenv("OPENAI_ORG")
 
 
 def validate_scene(scene):
-    required_keys = ["title", "image", "on_discover", "on_return"]
+    required_keys = ["title", "on_discover", "on_return"]
     for key in required_keys:
         if key not in scene:
             return False
 
     if not isinstance(scene["title"], str):
-        return False
-
-    if not isinstance(scene["image"], str):
         return False
 
     if not isinstance(scene["on_discover"], dict):
@@ -82,11 +79,11 @@ def gen_scenes(n, cb):
                 scene_json = scene_json.replace("\\'", "'")
                 scene = json.loads(scene_json)
                 if not validate_scene(scene):
-                    logging.error("Invalid scene generated", scene)
-                    return
+                    logging.error(f"Invalid scene generated: {json.dumps(scene)}")
+                    continue
             except Exception as e:
-                logging.error("Error getting scene info", e, scene)
-                return
+                logging.error(f"Error getting scene info: {e}, {json.dumps(scene)}")
+                continue
 
             try:
                 image_url = gen_image(
@@ -94,7 +91,7 @@ def gen_scenes(n, cb):
                 )
                 scene["image"] = image_url
             except Exception as e:
-                logging.error("Error generating scene image", e)
+                logging.error("Error generating scene image {e}")
 
             if scene is not None:
                 cb(scene)
