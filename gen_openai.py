@@ -85,6 +85,7 @@ def gen_scenes(n, cb):
                 logging.error(f"Error getting scene info: {e}, {json.dumps(scene)}")
                 continue
 
+            # TODO could add retry logic
             try:
                 image_url = gen_image(
                     scene["title"], scene["on_discover"]["description"]
@@ -92,6 +93,7 @@ def gen_scenes(n, cb):
                 scene["image"] = image_url
             except Exception as e:
                 logging.error("Error generating scene image {e}")
+                continue
 
             if scene is not None:
                 cb(scene)
