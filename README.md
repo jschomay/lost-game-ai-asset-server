@@ -1,6 +1,6 @@
 # Generative AI pipeline for "Lost" infinite exploration game
 
-This is the backend to my experimental AI game [Lost](https://github.com/jschomay/Lost) presented in the 2023 AI Engineer Summit (link coming soon).
+This is the backend to my experimental AI game [Lost](https://github.com/jschomay/Lost) presented in the 2023 AI Engineer Summit (talk is linked below).
 
 This repo includes:
 
@@ -9,7 +9,13 @@ This repo includes:
 - a generated scenes [preview server](https://lost-game-ai-assets-server.fly.dev/scenes)
 - a cache and assert server for the game client
 
-The game can be played at https://replit.com/@jschomay/Lost-forest-survival-game
+The game can be played at https://enegames.itch.io/lost.
+
+[Watch the talk](https://www.youtube.com/embed/q1LyrO3lWiA)
+
+[![Watch the video](https://img.youtube.com/vi/q1LyrO3lWiA/hqdefault.jpg)](https://www.youtube.com/embed/q1LyrO3lWiA)
+
+
 
 ## Fine-tuning
 
